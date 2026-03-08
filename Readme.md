@@ -63,4 +63,5 @@ The trained model learns patterns from audio features and predicts the genre of 
 ## 👨‍💻 Author
 
 **Vishal Prajapati and Kumar Aditya**
+
 Data Science | Artificial Intelligence | Machine Learning
