@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music Genre Classifier</title>
+  <meta name="description" content="AI-powered music genre classifier. Upload an audio file and get instant genre predictions." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/wavesurfer.js@7/dist/wavesurfer.min.js"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+  <!-- ── Header ──────────────────────────────────────────────────────── -->
+  <header class="site-header fade-up">
+    <div class="header-icon">🎵</div>
+    <div>
+      <h1 class="header-title">Music Genre Classifier</h1>
+      <p class="header-sub">Upload your track and let AI classify its genre</p>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ── Upload Card ────────────────────────────────────────────────── -->
+    <section class="card fade-up delay-1" id="upload-card">
+      <h2 class="card-title">Upload Audio</h2>
+      <div class="drop-zone" id="drop-zone">
+        <div class="drop-icon">🎶</div>
+        <p class="drop-label">Drag &amp; drop your audio file here</p>
+        <p class="drop-sub">MP3, WAV, OGG, FLAC &mdash; up to 50 MB</p>
+        <label class="btn btn-primary" for="file-input">Browse Files</label>
+        <input type="file" id="file-input" accept=".mp3,.wav,.ogg,.flac" hidden />
+      </div>
+      <p class="file-name" id="file-name"></p>
+    </section>
+
+    <!-- ── Waveform Card ──────────────────────────────────────────────── -->
+    <section class="card fade-up delay-2 hidden" id="waveform-card">
+      <h2 class="card-title">Audio Preview</h2>
+      <div id="waveform"></div>
+      <div class="player-controls">
+        <button class="btn btn-icon" id="play-btn" title="Play / Pause">▶</button>
+        <span class="player-time" id="current-time">0:00</span>
+        <span class="player-sep">/</span>
+        <span class="player-time" id="total-time">0:00</span>
+      </div>
+      <div class="model-select">
+        <label for="model-select">Model</label>
+        <select id="model-select">
+          <option value="">Select a model...</option>
+          <option value="mobilenetv2">MobileNetV2 (transfer)</option>
+          <option value="custom">Custom CNN</option>
+        </select>
+      </div>
+      <button class="btn btn-primary classify-btn" id="classify-btn">
+        <span id="btn-text">Classify Genre</span>
+        <span class="spinner hidden" id="spinner"></span>
+      </button>
+    </section>
+
+    <!-- ── Results Card ───────────────────────────────────────────────── -->
+    <section class="card fade-up delay-3 hidden" id="results-card">
+      <h2 class="card-title">Results</h2>
+      <div class="results-grid">
+
+        <!-- Left: Bar Chart -->
+        <div class="chart-wrapper">
+          <h3 class="sub-title">Genre Probabilities</h3>
+          <canvas id="genre-chart"></canvas>
+        </div>
+
+        <!-- Right: Top Genre Badge -->
+        <div class="badge-wrapper">
+          <h3 class="sub-title">Top Prediction</h3>
+          <div class="genre-badge" id="genre-badge">
+            <span class="genre-name" id="genre-name">—</span>
+          </div>
+          <div class="confidence-ring-container">
+            <svg class="confidence-ring" viewBox="0 0 120 120">
+              <circle class="ring-bg" cx="60" cy="60" r="50" />
+              <circle class="ring-fill" id="ring-fill" cx="60" cy="60" r="50"
+                stroke-dasharray="314" stroke-dashoffset="314" />
+            </svg>
+            <div class="confidence-label">
+              <span id="confidence-pct">0%</span>
+              <small>Confidence</small>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <button class="btn btn-secondary reset-btn" id="reset-btn">Try Another Track</button>
+    </section>
+
+  </main>
+
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+</body>
+</html>

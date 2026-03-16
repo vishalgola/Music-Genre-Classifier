@@ -1,0 +1,43 @@
+# ── Large data & model files (never commit these) ──────────────────────────
+data/
+data/fma_medium/
+data/fma_metadata/
+data/processed/
+data/splits.json
+data/skip_list.txt
+outputs/model.keras
+outputs/model_mobilenetv2.keras
+outputs/model_custom_cnn.keras
+outputs/confusion_matrix_*.png
+outputs/comparison.csv
+outputs/comparison.md
+outputs/metrics_*.json
+outputs/cuda_shim/
+outputs/logs/
+
+# ── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+*.spec
+.env
+.venv/
+venv/
+venv_gpu/
+env/
+
+# ── OS / IDE ─────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# ── Jupyter ──────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── PyInstaller output ───────────────────────────────────────────────────────
+dist/
