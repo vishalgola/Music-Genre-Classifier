@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 tensorflow>=2.13
 librosa>=0.10
 soundfile>=0.12
@@ -10,3 +11,9 @@ tqdm>=4.65
 requests>=2.31
 scipy>=1.11
 flask>=3.0
+=======
+librosa>=0.10.2
+matplotlib>=3.8.0
+soundfile>=0.12.1
+numpy>=1.26.0
+>>>>>>> 2155cfaa1d8fbe5af83e7b2e784a6ccfcefb5a6b

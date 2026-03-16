@@ -2,16 +2,21 @@
 
 ## 📌 Project Overview
 
+<<<<<<< HEAD
 This project automatically classifies music tracks into different genres using a Deep Learning model. Audio files are processed to extract Mel Spectrogram images, which are then used to fine-tune a MobileNetV2 CNN. Results are served through an animated web interface.
 
 **Dataset:** FMA Medium (25,000 tracks, 16 genres, ~22 GB)  
 **Models:** MobileNetV2 with Transfer Learning + Custom CNN  
 **UI:** Animated Flask Web App (drag & drop → waveform → genre chart)
+=======
+This project automatically classifies music tracks into different genres using a Deep Learning model. Audio files are processed to extract important features such as MFCCs and Mel Spectrograms, which are then used to train a neural network for genre prediction.
+>>>>>>> 2155cfaa1d8fbe5af83e7b2e784a6ccfcefb5a6b
 
 ---
 
 ## 🚀 Features
 
+<<<<<<< HEAD
 - Automatic music genre prediction from MP3/WAV/OGG/FLAC files
 - Mel Spectrogram feature extraction with z-score normalization
 - MobileNetV2 transfer learning with two-phase fine-tuning
@@ -22,11 +27,19 @@ This project automatically classifies music tracks into different genres using a
 - Model selector to compare predictions from different architectures
 - Fully modular pipeline — each stage independently runnable
 - Detailed explanation docs for every module in `docs/`
+=======
+* Automatic music genre prediction
+* Audio preprocessing and feature extraction
+* Deep Learning model for classification
+* Model evaluation using performance metrics
+* Visualization of audio features
+>>>>>>> 2155cfaa1d8fbe5af83e7b2e784a6ccfcefb5a6b
 
 ---
 
 ## 🛠️ Technologies Used
 
+<<<<<<< HEAD
 - **Python 3.10+**
 - **TensorFlow / Keras** — Model training and inference
 - **Librosa** — Audio loading and Mel Spectrogram extraction
@@ -129,6 +142,47 @@ Every module has a dedicated explanation file in `docs/` covering:
 2. **Theory** — the ML/DSP concepts that motivated the design
 
 Start with [`docs/extract_features.md`](docs/extract_features.md) for Mel Spectrogram theory and [`docs/train.md`](docs/train.md) for transfer learning.
+=======
+* Python
+* TensorFlow / Keras
+* Librosa
+* NumPy & Pandas
+* Matplotlib
+
+---
+
+## 📂 Project Workflow
+
+1. Audio Data Collection
+2. Audio Preprocessing
+3. Feature Extraction (MFCC / Mel Spectrogram)
+4. Model Training using Deep Learning
+5. Model Evaluation
+6. Genre Prediction for new audio files
+
+---
+
+## 📊 Results
+
+The trained model learns patterns from audio features and predicts the genre of unseen music tracks with good accuracy.
+
+---
+
+## ▶️ How to Run the Project
+
+1. Clone the repository
+2. Install required libraries
+3. Run the training script
+4. Use the trained model to classify new music files
+
+---
+
+## 📚 Future Improvements
+
+* Improve model accuracy with larger datasets
+* Add more genres for classification
+* Deploy the model as a web application
+>>>>>>> 2155cfaa1d8fbe5af83e7b2e784a6ccfcefb5a6b
 
 ---
 
