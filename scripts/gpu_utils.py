@@ -20,7 +20,7 @@ import tensorflow as tf
 
 def setup_gpu(log: logging.Logger | None = None) -> None:
     logger = log or logging.getLogger(__name__)
-    require_gpu = os.environ.get("MGC_REQUIRE_GPU", "1") != "0"
+    require_gpu = os.environ.get("MGC_REQUIRE_GPU", "0") != "0"
     # Add existing shim directory early if present.
     repo_root = Path(__file__).resolve().parent.parent
     shim_dir = repo_root / "outputs" / "cuda_shim"

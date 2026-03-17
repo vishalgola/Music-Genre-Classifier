@@ -34,14 +34,19 @@ from scripts.config import (
     COMPARE_MD,
     CONFUSION_PATH_CNN,
     CONFUSION_PATH_MNET,
+    CONFUSION_PATH_TRANS,
+    CONFUSION_PATH_YAMNET,
     FMA_AUDIO_DIR,
     FMA_META_DIR,
     FLASK_HOST,
     FLASK_PORT,
     MODEL_PATH_CNN,
     MODEL_PATH_MNET,
+    MODEL_PATH_TRANS,
+    MODEL_PATH_YAMNET,
     PROCESSED_DIR,
     SPLITS_FILE,
+    EMBED_DIR,
 )
 
 logging.basicConfig(
@@ -84,6 +89,13 @@ def main() -> None:
         fn="extract_all",
     )
 
+    _stage(
+        name="Extract YAMNet Embeddings",
+        check=EMBED_DIR.exists() and any(EMBED_DIR.glob("*.npy")),
+        module="scripts.extract_embeddings",
+        fn="extract_all",
+    )
+
     # -- Stage 3: Augmentation -----------------------------------------------
     _stage(
         name="Data Augmentation",
@@ -109,6 +121,22 @@ def main() -> None:
         model_name="custom",
     )
 
+    _stage(
+        name="Train Transformer Model",
+        check=MODEL_PATH_TRANS.exists(),
+        module="scripts.train",
+        fn="train",
+        model_name="transformer",
+    )
+
+    _stage(
+        name="Train YAMNet Classifier",
+        check=MODEL_PATH_YAMNET.exists(),
+        module="scripts.train",
+        fn="train",
+        model_name="yamnet",
+    )
+
     # -- Stage 5: Evaluation -------------------------------------------------
     _stage(
         name="Evaluate MobileNetV2 Model",
@@ -124,6 +152,22 @@ def main() -> None:
         module="scripts.evaluate",
         fn="evaluate",
         model_name="custom",
+    )
+
+    _stage(
+        name="Evaluate Transformer Model",
+        check=CONFUSION_PATH_TRANS.exists(),
+        module="scripts.evaluate",
+        fn="evaluate",
+        model_name="transformer",
+    )
+
+    _stage(
+        name="Evaluate YAMNet Model",
+        check=CONFUSION_PATH_YAMNET.exists(),
+        module="scripts.evaluate",
+        fn="evaluate",
+        model_name="yamnet",
     )
 
     # -- Stage 6: Compare ----------------------------------------------------

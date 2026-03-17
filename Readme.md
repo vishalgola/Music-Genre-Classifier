@@ -6,7 +6,7 @@
 This project automatically classifies music tracks into different genres using a Deep Learning model. Audio files are processed to extract Mel Spectrogram images, which are then used to fine-tune a MobileNetV2 CNN. Results are served through an animated web interface.
 
 **Dataset:** FMA Medium (25,000 tracks, 16 genres, ~22 GB)  
-**Models:** MobileNetV2 with Transfer Learning + Custom CNN  
+**Models:** MobileNetV2 with Transfer Learning + Custom CNN + Transformer + YAMNet embeddings  
 **UI:** Animated Flask Web App (drag & drop → waveform → genre chart)
 =======
 This project automatically classifies music tracks into different genres using a Deep Learning model. Audio files are processed to extract important features such as MFCCs and Mel Spectrograms, which are then used to train a neural network for genre prediction.
@@ -21,6 +21,8 @@ This project automatically classifies music tracks into different genres using a
 - Mel Spectrogram feature extraction with z-score normalization
 - MobileNetV2 transfer learning with two-phase fine-tuning
 - Custom 4-block CNN baseline (trained from scratch)
+- Transformer (ViT-style) baseline on spectrograms
+- YAMNet embeddings + classifier (pretrained audio model)
 - Data augmentation (time-stretch, pitch-shift, Gaussian noise)
 - Side-by-side model comparison metrics (accuracy, F1, training time)
 - Animated web UI with waveform visualizer and genre probability chart
@@ -60,7 +62,8 @@ Music-Genre-Classifier/
 │   ├── download_data.py     # Stage 1: Download FMA Medium
 │   ├── extract_features.py  # Stage 2: Audio → Mel Spectrogram .npy
 │   ├── augment.py           # Stage 3: Time-stretch + pitch-shift augmentation
-│   ├── train.py             # Stage 4: Train MobileNetV2 or Custom CNN
+│   ├── train.py             # Stage 4: Train MobileNetV2, Custom CNN, Transformer, or YAMNet classifier
+│   ├── extract_embeddings.py# Stage 2b: YAMNet embeddings
 │   ├── evaluate.py          # Stage 5: Accuracy, F1, confusion matrix
 │   ├── compare_models.py    # Stage 6: Comparison report (CSV/MD)
 │   └── mel_preview.py       # Utility: preview a single spectrogram
@@ -110,11 +113,24 @@ The UI requires selecting a model before prediction.
 ```bash
 python scripts/download_data.py      # Download FMA Medium (~22 GB)
 python scripts/extract_features.py   # Extract Mel Spectrograms
+python scripts/extract_embeddings.py # Extract YAMNet embeddings
 python scripts/augment.py            # Generate augmented training data
+
+### MTG-Jamendo (train directly from TARs)
+```bash
+python scripts/build_splits_jamendo.py --metadata /path/to/metadata.tsv --label-col genre
+python scripts/extract_embeddings_tar.py --metadata /path/to/metadata.tsv --tars-dir /path/to/tars
+python scripts/train.py --model yamnet
+python scripts/evaluate_tar.py --metadata /path/to/metadata.tsv --tars-dir /path/to/tars
+```
 python scripts/train.py --model mobilenetv2   # Train MobileNetV2
 python scripts/train.py --model custom        # Train Custom CNN
+python scripts/train.py --model transformer   # Train Transformer
+python scripts/train.py --model yamnet        # Train YAMNet classifier
 python scripts/evaluate.py --model mobilenetv2
 python scripts/evaluate.py --model custom
+python scripts/evaluate.py --model transformer
+python scripts/evaluate.py --model yamnet
 python scripts/compare_models.py              # Generate comparison report
 python app/app.py                    # Run UI (model must exist)
 ```
@@ -128,7 +144,7 @@ python app/app.py                    # Run UI (model must exist)
 | 1 | `download_data.py` | `data/fma_medium/` + `data/fma_metadata/` |
 | 2 | `extract_features.py` | `data/processed/*.npy` + `data/splits.json` |
 | 3 | `augment.py` | `data/processed/aug_*.npy` (training only) |
-| 4 | `train.py` | `outputs/model_mobilenetv2.keras`, `outputs/model_custom_cnn.keras` |
+| 4 | `train.py` | `outputs/model_mobilenetv2.keras`, `outputs/model_custom_cnn.keras`, `outputs/model_transformer.keras`, `outputs/model_yamnet.keras` |
 | 5 | `evaluate.py` | `outputs/confusion_matrix_*.png` + accuracy/F1 |
 | 6 | `compare_models.py` | `outputs/comparison.csv` + `outputs/comparison.md` |
 | 7 | `app.py` | Web UI at `http://localhost:5000` |

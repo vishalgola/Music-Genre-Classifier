@@ -4,6 +4,8 @@ evaluate.py - Stage 5: Evaluate a trained model on the held-out test set.
 Run:
     python scripts/evaluate.py --model mobilenetv2
     python scripts/evaluate.py --model custom
+    python scripts/evaluate.py --model transformer
+    python scripts/evaluate.py --model yamnet
 """
 
 from __future__ import annotations
@@ -29,25 +31,29 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 from scripts.config import (
     CONFUSION_PATH_CNN,
     CONFUSION_PATH_MNET,
+    CONFUSION_PATH_TRANS,
+    CONFUSION_PATH_YAMNET,
     EVAL_LOG_CNN,
     EVAL_LOG_MNET,
-    IMG_SIZE,
+    EVAL_LOG_TRANS,
+    EVAL_LOG_YAMNET,
     LOG_DIR,
     METRICS_EVAL_CNN,
     METRICS_EVAL_MNET,
+    METRICS_EVAL_TRANS,
+    METRICS_EVAL_YAMNET,
     MODEL_PATH_CNN,
     MODEL_PATH_MNET,
+    MODEL_PATH_TRANS,
+    MODEL_PATH_YAMNET,
     PROCESSED_DIR,
+    EMBED_DIR,
     SPLITS_FILE,
 )
 from scripts.gpu_utils import setup_gpu
 
 log = logging.getLogger(__name__)
 
-
-# ---------------------------------------------------------------------------
-# Logging
-# ---------------------------------------------------------------------------
 
 def _configure_logging(log_path: Path) -> None:
     LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -63,12 +69,7 @@ def _configure_logging(log_path: Path) -> None:
     log.setLevel(logging.INFO)
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
 def load_test_data(test_map: dict[str, int]) -> tuple[np.ndarray, np.ndarray]:
-    """Load all test spectrograms into memory. Returns (X, y_true)."""
     X, y = [], []
     missing = 0
     for key, label in test_map.items():
@@ -82,6 +83,22 @@ def load_test_data(test_map: dict[str, int]) -> tuple[np.ndarray, np.ndarray]:
         y.append(label)
     if missing:
         log.warning(f"{missing} test tracks missing .npy files - skipped.")
+    return np.array(X, dtype=np.float32), np.array(y)
+
+
+def load_test_embeddings(test_map: dict[str, int]) -> tuple[np.ndarray, np.ndarray]:
+    X, y = [], []
+    missing = 0
+    for key, label in test_map.items():
+        npy_path = EMBED_DIR / f"{key}.npy"
+        if not npy_path.exists():
+            missing += 1
+            continue
+        arr = np.load(npy_path)                       # (1024,)
+        X.append(arr)
+        y.append(label)
+    if missing:
+        log.warning(f"{missing} test embeddings missing .npy files - skipped.")
     return np.array(X, dtype=np.float32), np.array(y)
 
 
@@ -115,19 +132,31 @@ def _write_metrics(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, indent=2))
 
 
-# ---------------------------------------------------------------------------
-# Main
-# ---------------------------------------------------------------------------
-
 def evaluate(model_name: str = "mobilenetv2") -> None:
     model_name = model_name.lower().strip()
-    if model_name not in {"mobilenetv2", "custom"}:
-        raise ValueError("model_name must be 'mobilenetv2' or 'custom'")
+    if model_name not in {"mobilenetv2", "custom", "transformer", "yamnet"}:
+        raise ValueError("model_name must be 'mobilenetv2', 'custom', 'transformer', or 'yamnet'")
 
-    model_path = MODEL_PATH_MNET if model_name == "mobilenetv2" else MODEL_PATH_CNN
-    confusion_path = CONFUSION_PATH_MNET if model_name == "mobilenetv2" else CONFUSION_PATH_CNN
-    log_path = EVAL_LOG_MNET if model_name == "mobilenetv2" else EVAL_LOG_CNN
-    metrics_path = METRICS_EVAL_MNET if model_name == "mobilenetv2" else METRICS_EVAL_CNN
+    if model_name == "mobilenetv2":
+        model_path = MODEL_PATH_MNET
+        confusion_path = CONFUSION_PATH_MNET
+        log_path = EVAL_LOG_MNET
+        metrics_path = METRICS_EVAL_MNET
+    elif model_name == "custom":
+        model_path = MODEL_PATH_CNN
+        confusion_path = CONFUSION_PATH_CNN
+        log_path = EVAL_LOG_CNN
+        metrics_path = METRICS_EVAL_CNN
+    elif model_name == "transformer":
+        model_path = MODEL_PATH_TRANS
+        confusion_path = CONFUSION_PATH_TRANS
+        log_path = EVAL_LOG_TRANS
+        metrics_path = METRICS_EVAL_TRANS
+    else:
+        model_path = MODEL_PATH_YAMNET
+        confusion_path = CONFUSION_PATH_YAMNET
+        log_path = EVAL_LOG_YAMNET
+        metrics_path = METRICS_EVAL_YAMNET
 
     _configure_logging(log_path)
     setup_gpu(log)
@@ -143,7 +172,10 @@ def evaluate(model_name: str = "mobilenetv2") -> None:
     class_names = [idx_to_genre[i] for i in range(len(idx_to_genre))]
 
     log.info("Loading test data...")
-    X_test, y_true = load_test_data(splits["test"])
+    if model_name == "yamnet":
+        X_test, y_true = load_test_embeddings(splits["test"])
+    else:
+        X_test, y_true = load_test_data(splits["test"])
     log.info(f"Test set: {len(X_test)} samples, {len(class_names)} classes")
 
     log.info(f"Loading model from {model_path}...")
@@ -182,7 +214,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Evaluate a trained model.")
     parser.add_argument(
         "--model",
-        choices=["mobilenetv2", "custom"],
+        choices=["mobilenetv2", "custom", "transformer", "yamnet"],
         default="mobilenetv2",
         help="Which model to evaluate.",
     )

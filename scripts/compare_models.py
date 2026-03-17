@@ -19,10 +19,16 @@ from scripts.config import (
     COMPARE_MD,
     METRICS_EVAL_CNN,
     METRICS_EVAL_MNET,
+    METRICS_EVAL_TRANS,
+    METRICS_EVAL_YAMNET,
     METRICS_TRAIN_CNN,
     METRICS_TRAIN_MNET,
+    METRICS_TRAIN_TRANS,
+    METRICS_TRAIN_YAMNET,
     TRAIN_HISTORY_CNN,
     TRAIN_HISTORY_MNET,
+    TRAIN_HISTORY_TRANS,
+    TRAIN_HISTORY_YAMNET,
 )
 
 
@@ -113,6 +119,8 @@ def main() -> None:
     rows = [
         _assemble_row("mobilenetv2", METRICS_TRAIN_MNET, METRICS_EVAL_MNET, TRAIN_HISTORY_MNET),
         _assemble_row("custom_cnn", METRICS_TRAIN_CNN, METRICS_EVAL_CNN, TRAIN_HISTORY_CNN),
+        _assemble_row("transformer", METRICS_TRAIN_TRANS, METRICS_EVAL_TRANS, TRAIN_HISTORY_TRANS),
+        _assemble_row("yamnet", METRICS_TRAIN_YAMNET, METRICS_EVAL_YAMNET, TRAIN_HISTORY_YAMNET),
     ]
     write_csv(rows)
     write_md(rows)

@@ -16,6 +16,7 @@ from pathlib import Path
 import librosa
 import numpy as np
 import tensorflow as tf
+import tensorflow_hub as hub
 from flask import Flask, jsonify, render_template, request
 from scipy.ndimage import zoom
 
@@ -28,10 +29,16 @@ from scripts.config import (
     MAX_UPLOAD_MB,
     MODEL_PATH_CNN,
     MODEL_PATH_MNET,
+    MODEL_PATH_TRANS,
+    MODEL_PATH_YAMNET,
     N_FFT,
     N_MELS,
     SAMPLE_RATE,
     SPLITS_FILE,
+    YAMNET_HANDLE,
+    YAMNET_SAMPLE_RATE,
+    YAMNET_SEG_SECONDS,
+    YAMNET_SEG_HOP,
 )
 
 # ---------------------------------------------------------------------------
@@ -54,6 +61,7 @@ ALLOWED_EXTENSIONS = {"mp3", "wav", "ogg", "flac"}
 # Globals - loaded once at startup
 _models: dict[str, tf.keras.Model] = {}
 _label_map: dict[int, str] = {}
+_yamnet_model: object | None = None
 
 
 def _load_models() -> None:
@@ -63,6 +71,8 @@ def _load_models() -> None:
     model_paths = {
         "mobilenetv2": MODEL_PATH_MNET,
         "custom": MODEL_PATH_CNN,
+        "transformer": MODEL_PATH_TRANS,
+        "yamnet": MODEL_PATH_YAMNET,
     }
     _models = {}
     for name, path in model_paths.items():
@@ -82,6 +92,14 @@ def _load_models() -> None:
         _label_map = {v: k for k, v in lm.items()}
     else:
         log.warning("splits.json not found - genre names will fall back to indices.")
+
+
+def _load_yamnet() -> object:
+    global _yamnet_model
+    if _yamnet_model is None:
+        log.info(f"Loading YAMNet from {YAMNET_HANDLE}...")
+        _yamnet_model = hub.load(YAMNET_HANDLE)
+    return _yamnet_model
 
 
 def _allowed_file(filename: str) -> bool:
@@ -113,6 +131,33 @@ def _audio_to_spectrogram(audio_bytes: bytes) -> np.ndarray:
     return np.expand_dims(tensor, axis=0)
 
 
+def _audio_to_yamnet_embedding(audio_bytes: bytes) -> np.ndarray:
+    with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
+        tmp.write(audio_bytes)
+        tmp_path = tmp.name
+
+    y, sr = librosa.load(tmp_path, sr=YAMNET_SAMPLE_RATE, mono=True, duration=30.0)
+    Path(tmp_path).unlink(missing_ok=True)
+
+    yamnet = _load_yamnet()
+    seg_len = int(YAMNET_SEG_SECONDS * YAMNET_SAMPLE_RATE)
+    hop = int(YAMNET_SEG_HOP * YAMNET_SAMPLE_RATE)
+    segments = []
+    for start in range(0, max(1, len(y) - seg_len + 1), hop):
+        seg = y[start : start + seg_len]
+        if len(seg) < seg_len:
+            break
+        segments.append(seg)
+    if not segments:
+        segments = [y[:seg_len]]
+    seg_embs = []
+    for seg in segments:
+        scores, embeddings, spectrogram = yamnet(seg)
+        seg_embs.append(tf.reduce_mean(embeddings, axis=0))
+    emb = tf.reduce_mean(tf.stack(seg_embs, axis=0), axis=0).numpy().astype(np.float32)
+    return np.expand_dims(emb, axis=0)
+
+
 # ---------------------------------------------------------------------------
 # Routes
 # ---------------------------------------------------------------------------
@@ -140,7 +185,10 @@ def predict():
 
     try:
         audio_bytes = file.read()
-        tensor = _audio_to_spectrogram(audio_bytes)
+        if model_name == "yamnet":
+            tensor = _audio_to_yamnet_embedding(audio_bytes)
+        else:
+            tensor = _audio_to_spectrogram(audio_bytes)
         probs = _models[model_name].predict(tensor, verbose=0)[0]  # (n_classes,)
 
         probabilities = {

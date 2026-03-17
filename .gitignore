@@ -8,12 +8,15 @@ data/skip_list.txt
 outputs/model.keras
 outputs/model_mobilenetv2.keras
 outputs/model_custom_cnn.keras
+outputs/model_transformer.keras
+outputs/model_yamnet.keras
 outputs/confusion_matrix_*.png
 outputs/comparison.csv
 outputs/comparison.md
 outputs/metrics_*.json
 outputs/cuda_shim/
 outputs/logs/
+data/embeddings_yamnet/
 
 # ── Python ──────────────────────────────────────────────────────────────────
 __pycache__/

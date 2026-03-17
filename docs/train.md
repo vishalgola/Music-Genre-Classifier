@@ -2,14 +2,25 @@
 
 ## Code Walkthrough
 
-This script supports **two models** to classify music genres from Mel Spectrogram images:
+This script supports **four models** to classify music genres from audio:
 1. **MobileNetV2 (transfer learning)**
 2. **Custom 4-block CNN (trained from scratch)**
+3. **Transformer (ViT-style)**
+4. **YAMNet embeddings + classifier**
 
 Run:
 ```bash
 python scripts/train.py --model mobilenetv2
 python scripts/train.py --model custom
+python scripts/train.py --model transformer
+python scripts/train.py --model yamnet
+
+For MTG-Jamendo (training from TARs), build splits first and then extract embeddings:
+```bash
+python scripts/build_splits_jamendo.py --metadata /path/to/metadata.tsv --label-col genre
+python scripts/extract_embeddings_tar.py --metadata /path/to/metadata.tsv --tars-dir /path/to/tars
+python scripts/train.py --model yamnet
+```
 ```
 
 ### `SpectrogramDataset` — the data generator
