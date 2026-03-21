@@ -1,4 +1,4 @@
-# ── Large data & model files (never commit these) ──────────────────────────
+
 data/
 data/fma_medium/
 data/fma_metadata/
