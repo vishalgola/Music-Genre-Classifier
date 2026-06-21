@@ -14,7 +14,6 @@ This project automatically classifies music tracks into different genres using a
 
 ---
 
-## 🚀 Features
 
 <<<<<<< HEAD
 - Automatic music genre prediction from MP3/WAV/OGG/FLAC files
