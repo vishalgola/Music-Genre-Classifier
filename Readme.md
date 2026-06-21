@@ -39,7 +39,6 @@ This project automatically classifies music tracks into different genres using a
 
 ---
 
-## 🛠️ Technologies Used
 
 <<<<<<< HEAD
 - **Python 3.10+**
