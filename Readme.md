@@ -4,9 +4,9 @@
 
 This project automatically classifies music tracks into different genres using a Deep Learning model. Audio files are processed to extract Mel Spectrogram images, which are then used to fine-tune a MobileNetV2 CNN. Results are served through an animated web interface.
 
-**Dataset:** FMA Medium (25,000 tracks, 16 genres, ~22 GB)  
-**Models:** MobileNetV2 with Transfer Learning + Custom CNN + Transformer + YAMNet embeddings  
-**UI:** Animated Flask Web App (drag & drop → waveform → genre chart)
+Dataset: FMA Medium (25,000 tracks, 16 genres, ~22 GB)  
+Models:MobileNetV2 with Transfer Learning + Custom CNN + Transformer + YAMNet embeddings  
+UI: Animated Flask Web App (drag & drop → waveform → genre chart)
 =======
 This project automatically classifies music tracks into different genres using a Deep Learning model. Audio files are processed to extract important features such as MFCCs and Mel Spectrograms, which are then used to train a neural network for genre prediction.
 >>>>>>> 2155cfaa1d8fbe5af83e7b2e784a6ccfcefb5a6b
