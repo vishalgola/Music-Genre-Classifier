@@ -1,4 +1,3 @@
-# 🎵 Music Genre Classification using Deep Learning
 
 ## 📌 Project Overview
 
