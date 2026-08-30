@@ -2,6 +2,7 @@
 
 ## 📌 Project Overview
 
+This project automatically classifies music tracks into different genres using a Deep Learning model. Audio files are processed to extract Mel Spectrogram images, which are then used to fine-tune a MobileNetV2 CNN. Results are served through an animated web interface.
 
 Dataset: FMA Medium (25,000 tracks, 16 genres, ~22 GB)  
 Models:MobileNetV2 with Transfer Learning + Custom CNN + Transformer + YAMNet embeddings  
